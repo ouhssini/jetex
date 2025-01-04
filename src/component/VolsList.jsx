@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVols, volSelected } from "../redux/slicers";
+import { Link } from "react-router";
 
 const VolsList = () => {
   const { vols, status, error } = useSelector((state) => state.vols);
@@ -15,21 +16,26 @@ const VolsList = () => {
     }
   }, [status, dispatch]);
 
-const Rechercher = () => {
+  const Rechercher = () => {
     const startDate = new Date(dateDebut);
     const endDate = new Date(dateFin);
     const filtered = vols.filter((vol) => {
-        const volDateParts = vol.date.split('-');
-        if (volDateParts.length === 3) {
-            const validDate = new Date(`${volDateParts[1]}-${volDateParts[0]}-${volDateParts[2]}`);
-            return (!dateDebut || validDate >= startDate) && (!dateFin || validDate <= endDate);
-        }
-        console.warn(`Invalid date format for vol: ${vol.date}`);
-        return false;
+      const volDateParts = vol.date.split("-");
+      if (volDateParts.length === 3) {
+        const validDate = new Date(
+          `${volDateParts[1]}-${volDateParts[0]}-${volDateParts[2]}`
+        );
+        return (
+          (!dateDebut || validDate >= startDate) &&
+          (!dateFin || validDate <= endDate)
+        );
+      }
+      console.warn(`Invalid date format for vol: ${vol.date}`);
+      return false;
     });
 
     setFilteredVols(filtered);
-};
+  };
 
   if (status === "failed") {
     return <div>Error: {error}</div>;
@@ -86,17 +92,20 @@ const Rechercher = () => {
             className="rounded-md overflow-hidden shadow-md basis-96"
             key={vol.id}
           >
-            <img src="image.jpg" alt={vol.depart} className="w-full" />
-            <h2 className="text-lg font-semibold text-black bg-slate-200 w-fit px-5 py-3 rounded-md mx-auto my-4">
-              {vol.villedepart} {"->"} {vol.villearrivee}
-            </h2>
-            <p className="text-gray-500 my-3 pl-4">
-              <span className="font-semibold capitalize">Prix:</span> {vol.prix}{" "}
-              DH
-            </p>
-            <p className="text-gray-500 my-3 pl-4">
-              <span className="font-semibold capitalize">Date:</span> {vol.date}
-            </p>
+            <Link to={`/${vol.id}`} onClick={() => dispatch(volSelected(vol))}>
+              <img src="image.jpg" alt={vol.depart} className="w-full" />
+              <h2 className="text-lg font-semibold text-black bg-slate-200 w-fit px-5 py-3 rounded-md mx-auto my-4">
+                {vol.villedepart} {"->"} {vol.villearrivee}
+              </h2>
+              <p className="text-gray-500 my-3 pl-4">
+                <span className="font-semibold capitalize">Prix:</span>{" "}
+                {vol.prix} DH
+              </p>
+              <p className="text-gray-500 my-3 pl-4">
+                <span className="font-semibold capitalize">Date:</span>{" "}
+                {vol.date}
+              </p>
+            </Link>
             <button
               className="bg-yellow-500 text-white px-4 py-3 rounded-md mx-auto block my-4"
               onClick={() => dispatch(volSelected(vol))}
